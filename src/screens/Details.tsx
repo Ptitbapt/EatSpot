@@ -4,10 +4,9 @@ import {SafeAreaView, View, Text, Image, TouchableOpacity} from 'react-native';
 
 const Details = () => {
 
-  const fav = true;
+  const fav = false;
   const [isFavorite, setIsFavorite] = useState(fav);
-  const [isOpen, setIsOpen] = useState(false)
-
+  const [isOpen, setIsOpen] = useState(true)
 
   const favorite = useCallback(() => {
     if(isFavorite === true) {
@@ -38,7 +37,6 @@ const Details = () => {
         </View>
         <View style={styles.column}>
           <Text style={isOpen ? styles.open : styles.closed}>Status</Text>
-          <Text style={styles.text}>Schedule</Text>
         </View>
       </View>
     </SafeAreaView>
