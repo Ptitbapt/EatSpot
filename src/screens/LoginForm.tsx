@@ -19,7 +19,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 GoogleSignin.configure({
-  webClientId: "912398241839-fd82e293hmveqbl6cr11qsd92u7panft.apps.googleusercontent.com"
+  webClientId: "517567946148-7u3f2tbc6v7k9kn4tlqem0h98skhiisr.apps.googleusercontent.com"
 });
 
 function App(): React.JSX.Element {
@@ -45,25 +45,20 @@ function App(): React.JSX.Element {
 async function onGoogleButtonPress() {
   // Check if your device supports Google Play
   try {
-  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  await GoogleSignin.hasPlayServices();
+  console.log("2")
   // Get the users ID token
   const { idToken } = await GoogleSignin.signIn();
+  console.log("3")
 
   // Create a Google credential with the token
   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  console.log('hihihiihi')
 
   // Sign-in the user with the credential
   return auth().signInWithCredential(googleCredential);
   } catch (error) {
-    if ((error as any).code === statusCodes.SIGN_IN_CANCELLED) {
-      console.log('user cancelled the login flow');
-    } else if ((error as any).code === statusCodes.IN_PROGRESS) {
-      console.log('operation (e.g. sign in) is in progress already');
-    } else if ((error as any).code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      console.log('play services not available or outdated');
-    } else {
-       console.error('Something went wrong', error);
-    }
+   console.log(error);
   }
 
 }
