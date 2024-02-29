@@ -6,18 +6,17 @@ const styles = StyleSheet.create({
       backgroundColor: 'white',
     },
     backImage: {
-      height: 75,
+      height: 300,
       flexDirection: 'row',
       justifyContent: 'space-between',
-      padding: 10,
-      backgroundColor: 'green',
-      marginBottom: 50,
+      marginBottom: 20,
     },
     button: {
       backgroundColor: 'green',
       width: 100,
       height: 50,
       borderRadius: 30,
+      margin: 10,
     },
     textButton: {
       textAlign: 'center',
@@ -39,13 +38,12 @@ const styles = StyleSheet.create({
       color: 'black',
       fontSize: 24,
       textAlign: 'center',
-      marginBottom: 50,
     },
     text: {
       color: 'black',
       fontSize: 18,
       textAlign: 'center',
-      marginBottom: 50,
+      marginBottom: 20,
     },
     open: {
       color: 'green',
@@ -63,9 +61,11 @@ const styles = StyleSheet.create({
       justifyContent: 'space-evenly',
     },
     rowRight: {
-      flex: 1,
+      height: 50,
       flexDirection: 'row',
-      justifyContent: 'flex-end'
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(255,255,255,0.7)',
+      padding: 5,
     },
     column: {
       flex: 1,

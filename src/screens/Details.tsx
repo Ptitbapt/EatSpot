@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styles from './../styles/DetailsStyle'
-import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share} from 'react-native';
+import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share, ImageBackground} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Details = () => {
@@ -64,7 +64,7 @@ const Details = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.backImage}>
+      <ImageBackground style={styles.backImage} source={require('./../icons/Genshin.png')}>
         <TouchableOpacity onPress={() => {console.log("hello")}} style={styles.button}>
           <Text style={styles.textButton}>Go back</Text>
         </TouchableOpacity>
@@ -76,31 +76,15 @@ const Details = () => {
             <Image style={styles.favoriteImg} source={isFavorite ? require('./../icons/fillstar.png') : require('./../icons/emptystar.png')}></Image>
           </TouchableOpacity>
         </View>
-      </View>
-      <Text style={styles.title}>Resto name</Text>
+      </ImageBackground>
+      <Text style={styles.title}>Resto délicieux (vraiment)</Text>
       <View style={styles.row}>
         <View style={styles.column}>
-          <Text style={styles.text}>Address</Text>
-          <Text style={styles.text}>Category name</Text>
+          <Text style={styles.text}>10 rue de la merde, 12345 Testville</Text>
+          <Text style={styles.text}>Restaurant francais</Text>
         </View>
         <View style={styles.column}>
-          <Text style={isOpen ? styles.open : styles.closed}>Status</Text>
-
-        </View>
-      </View>
-      <Text style={styles.title}>Menu</Text>
-      <View style={styles.row}>
-        <View style={styles.column}>
-          <Text style={styles.text}>Lunch</Text>
-          <FlatList></FlatList>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.text}>Dinner</Text>
-          <FlatList></FlatList>
-        </View>
-        <View style={styles.column}>
-          <Text style={styles.text}>Dessert</Text>
-          <FlatList></FlatList>
+          <Text style={isOpen ? styles.open : styles.closed}>Open</Text>
         </View>
       </View>
     </SafeAreaView>
