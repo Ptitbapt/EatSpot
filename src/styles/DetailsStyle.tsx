@@ -10,11 +10,11 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
       padding: 10,
-      backgroundColor: 'lightgreen',
+      backgroundColor: 'green',
       marginBottom: 50,
     },
     button: {
-      backgroundColor: 'lightgreen',
+      backgroundColor: 'green',
       width: 100,
       height: 50,
       borderRadius: 30,
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
       fontSize: 20,
       marginTop: 'auto',
       marginBottom: 'auto',
+      color: 'white',
     },
     favorite: {
       width: 35,

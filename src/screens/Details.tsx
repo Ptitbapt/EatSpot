@@ -85,7 +85,7 @@ const Details = () => {
         </View>
         <View style={styles.column}>
           <Text style={isOpen ? styles.open : styles.closed}>Status</Text>
-          <Text style={styles.text}>Credit card : yes</Text>
+
         </View>
       </View>
       <Text style={styles.title}>Menu</Text>
