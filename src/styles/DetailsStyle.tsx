@@ -14,13 +14,14 @@ const styles = StyleSheet.create({
       marginBottom: 50,
     },
     button: {
-      backgroundColor: 'lightgrey',
+      backgroundColor: 'lightgreen',
       width: 100,
       height: 50,
       borderRadius: 30,
     },
     textButton: {
       textAlign: 'center',
+      fontSize: 20,
       marginTop: 'auto',
       marginBottom: 'auto',
     },
@@ -60,10 +61,25 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-evenly',
     },
+    rowRight: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'flex-end'
+    },
     column: {
       flex: 1,
       flexDirection: 'column',
       paddingTop: 50,
+    },
+    share: {
+      width: 35,
+      height: 35,
+      borderRadius: 10,
+      marginRight: 20,
+    },
+    shareImage: {
+      width: 35,
+      height: 35,
     }
 
   });

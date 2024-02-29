@@ -68,9 +68,14 @@ const Details = () => {
         <TouchableOpacity onPress={() => {console.log("hello")}} style={styles.button}>
           <Text style={styles.textButton}>Go back</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.favorite} onPress={favorite}>
-          <Image style={styles.favoriteImg} source={isFavorite ? require('./../icons/fillstar.png') : require('./../icons/emptystar.png')}></Image>
-        </TouchableOpacity>
+        <View style={styles.rowRight}>
+          <TouchableHighlight onPress={sendWhatsApp} style={styles.share}>
+            <Image source={require('./../icons/share.png')} style={styles.shareImage} />
+          </TouchableHighlight>
+          <TouchableOpacity style={styles.favorite} onPress={favorite}>
+            <Image style={styles.favoriteImg} source={isFavorite ? require('./../icons/fillstar.png') : require('./../icons/emptystar.png')}></Image>
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={styles.title}>Resto name</Text>
       <View style={styles.row}>
@@ -98,9 +103,6 @@ const Details = () => {
           <FlatList></FlatList>
         </View>
       </View>
-      <TouchableHighlight onPress={sendWhatsApp} style={styles.button}>
-        <Text>Share address</Text>
-      </TouchableHighlight>
     </SafeAreaView>
   );
 };
