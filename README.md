@@ -59,21 +59,16 @@ Now that you have successfully run the app, let's modify it.
 
 You've successfully run and modified your React Native App. :partying_face:
 
-### Now what?
+-------------------
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+La team de dev : Abed ADJE, Baptiste DUMOULIN, Antoine LEDIEUDEVILLE, Killian VENDEWINKELE.
 
-# Troubleshooting
+EatSpot est une application permettant la recherche de restaurants proches de vous. 
+Elle possède seulement 3 pages : Login, List et Details.
+La page Login vous permet de vous connecter via un formulaire ou par Google.
+La page List répertorie les restaurants les plus proches de vous qui sont ouverts. Un filtre par type de resto est disponible afin d'affiner votre recherche. (un filtre pour les favoris est en cours de développement)
+La page Details vous permet d'avoir des infos supplémentaires sur un restaurant précis et de le mettre en favori si vous l'appréciez. (un partage à des contacts sera ajouté plus tard)
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+API utilisée : FourSquare API (https://location.foursquare.com/places/docs/home)
 
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Modules utilisés : @react-native-firebase, @react-native-google-signin
