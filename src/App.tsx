@@ -1,11 +1,14 @@
 import React from 'react';
 import { SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import RestaurantList from './screens/RestaurantList'; 
+import Routes from './Routes'; 
+import { NavigationContainer } from '@react-navigation/native';
 
 const App: React.FC = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-       <RestaurantList />
+      <NavigationContainer>
+        <Routes />
+      </NavigationContainer>
       {/* <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         {}
       </KeyboardAvoidingView> */}

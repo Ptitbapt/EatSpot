@@ -3,7 +3,10 @@ import styles from './../styles/DetailsStyle'
 import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share, ImageBackground} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Details = () => {
+
+const Details = (props: any) => {
+
+  const {navigation} = props;
 
   const id = 0;
   const name = 'Restaurant délicieux (vraiment)';
@@ -63,7 +66,7 @@ const Details = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <ImageBackground style={styles.backImage} source={require('./../icons/Genshin.png')}>
-        <TouchableOpacity onPress={() => {console.log("hello")}} style={styles.button}>
+        <TouchableOpacity onPress={() => {navigation.goBack()}} style={styles.button}>
           <Text style={styles.textButton}>Go back</Text>
         </TouchableOpacity>
         <View style={styles.rowRight}>
