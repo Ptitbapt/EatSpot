@@ -6,16 +6,18 @@ const styles = StyleSheet.create({
       backgroundColor: 'white',
     },
     backImage: {
-      height: 150,
+      height: 75,
       flexDirection: 'row',
       justifyContent: 'space-between',
       padding: 10,
+      backgroundColor: 'lightgreen',
+      marginBottom: 50,
     },
     button: {
       backgroundColor: 'lightgrey',
       width: 100,
       height: 50,
-      borderRadius: 30
+      borderRadius: 30,
     },
     textButton: {
       textAlign: 'center',
@@ -35,11 +37,13 @@ const styles = StyleSheet.create({
       color: 'black',
       fontSize: 24,
       textAlign: 'center',
+      marginBottom: 50,
     },
     text: {
       color: 'black',
       fontSize: 18,
       textAlign: 'center',
+      marginBottom: 50,
     },
     open: {
       color: 'green',
