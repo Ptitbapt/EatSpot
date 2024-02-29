@@ -1,20 +1,43 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './../styles/DetailsStyle'
 import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Details = () => {
 
-  const fav = false;
-  const [isFavorite, setIsFavorite] = useState(fav);
+
+
+  const [isFavorite, setIsFavorite] = useState(false);
   const [isOpen, setIsOpen] = useState(true)
+
+  const setFavori = useCallback(async () => {
+    const fav = AsyncStorage.getItem('favorite');
+    console.log(fav);
+    if (await fav === 'true'){
+      console.log('a')
+      setIsFavorite(true);
+    }
+    else {
+      console.log('b')
+      setIsFavorite(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    setFavori()
+    console.log('test')
+  })
+
 
   const favorite = useCallback(() => {
     if(isFavorite === true) {
       setIsFavorite(false);
+      AsyncStorage.setItem('favorite', 'false')
       console.log(isFavorite);
     }
     else {
       setIsFavorite(true);
+      AsyncStorage.setItem('favorite', 'true')
       console.log(isFavorite);
     }
   }, [isFavorite])
@@ -41,45 +64,43 @@ const Details = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScrollView>
-        <View style={styles.backImage}>
-          <TouchableOpacity onPress={() => {console.log("hello")}} style={styles.button}>
-            <Text style={styles.textButton}>Go back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.favorite} onPress={favorite}>
-            <Image style={styles.favoriteImg} source={isFavorite ? require('./../icons/fillstar.png') : require('./../icons/emptystar.png')}></Image>
-          </TouchableOpacity>
+      <View style={styles.backImage}>
+        <TouchableOpacity onPress={() => {console.log("hello")}} style={styles.button}>
+          <Text style={styles.textButton}>Go back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.favorite} onPress={favorite}>
+          <Image style={styles.favoriteImg} source={isFavorite ? require('./../icons/fillstar.png') : require('./../icons/emptystar.png')}></Image>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.title}>Resto name</Text>
+      <View style={styles.row}>
+        <View style={styles.column}>
+          <Text style={styles.text}>Address</Text>
+          <Text style={styles.text}>Category name</Text>
         </View>
-        <Text style={styles.title}>Resto name</Text>
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.text}>Address</Text>
-            <Text style={styles.text}>Category name</Text>
-          </View>
-          <View style={styles.column}>
-            <Text style={isOpen ? styles.open : styles.closed}>Status</Text>
-            <Text style={styles.text}>Credit card : yes</Text>
-          </View>
+        <View style={styles.column}>
+          <Text style={isOpen ? styles.open : styles.closed}>Status</Text>
+          <Text style={styles.text}>Credit card : yes</Text>
         </View>
-        <Text style={styles.title}>Menu</Text>
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.text}>Lunch</Text>
-            <FlatList></FlatList>
-          </View>
-          <View style={styles.column}>
-            <Text style={styles.text}>Dinner</Text>
-            <FlatList></FlatList>
-          </View>
-          <View style={styles.column}>
-            <Text style={styles.text}>Dessert</Text>
-            <FlatList></FlatList>
-          </View>
+      </View>
+      <Text style={styles.title}>Menu</Text>
+      <View style={styles.row}>
+        <View style={styles.column}>
+          <Text style={styles.text}>Lunch</Text>
+          <FlatList></FlatList>
         </View>
-        <TouchableHighlight onPress={sendWhatsApp} style={styles.button}>
-          <Text>Share address</Text>
-        </TouchableHighlight>
-      </ScrollView>
+        <View style={styles.column}>
+          <Text style={styles.text}>Dinner</Text>
+          <FlatList></FlatList>
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.text}>Dessert</Text>
+          <FlatList></FlatList>
+        </View>
+      </View>
+      <TouchableHighlight onPress={sendWhatsApp} style={styles.button}>
+        <Text>Share address</Text>
+      </TouchableHighlight>
     </SafeAreaView>
   );
 };
