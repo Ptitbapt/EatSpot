@@ -111,7 +111,9 @@ dependencies {
     implementation("com.facebook.react:flipper-integration")
 
     if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
+         implementation("com.facebook.react:hermes-engine:+") {
+           exclude group:'com.facebook.fbjni'
+       }
     } else {
         implementation jscFlavor
     }
