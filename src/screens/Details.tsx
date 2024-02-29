@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styles from './../styles/DetailsStyle'
-import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList} from 'react-native';
+import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share} from 'react-native';
 
 const Details = () => {
 
@@ -18,6 +18,26 @@ const Details = () => {
       console.log(isFavorite);
     }
   }, [isFavorite])
+
+  const sendWhatsApp = useCallback( async () => {
+    try {
+      const result = await Share.share({
+        message:
+          'Resto name + address',
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -56,6 +76,9 @@ const Details = () => {
             <FlatList></FlatList>
           </View>
         </View>
+        <TouchableHighlight onPress={sendWhatsApp} style={styles.button}>
+          <Text>Share address</Text>
+        </TouchableHighlight>
       </ScrollView>
     </SafeAreaView>
   );
