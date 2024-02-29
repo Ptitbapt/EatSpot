@@ -5,27 +5,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Details = () => {
 
-
+  const id = 0;
+  const name = 'Restaurant délicieux (vraiment)';
+  const address = '10 rue de la merde, 12345 Testville';
+  const status = true;
+  const category = 'Pizzeria';
 
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(status)
 
   const setFavori = useCallback(async () => {
     const fav = AsyncStorage.getItem('favorite');
-    console.log(fav);
     if (await fav === 'true'){
-      console.log('a')
       setIsFavorite(true);
     }
     else {
-      console.log('b')
       setIsFavorite(false);
     }
   }, []);
 
   useEffect(() => {
     setFavori()
-    console.log('test')
   })
 
 
@@ -33,12 +33,10 @@ const Details = () => {
     if(isFavorite === true) {
       setIsFavorite(false);
       AsyncStorage.setItem('favorite', 'false')
-      console.log(isFavorite);
     }
     else {
       setIsFavorite(true);
       AsyncStorage.setItem('favorite', 'true')
-      console.log(isFavorite);
     }
   }, [isFavorite])
 
@@ -77,14 +75,15 @@ const Details = () => {
           </TouchableOpacity>
         </View>
       </ImageBackground>
-      <Text style={styles.title}>Resto délicieux (vraiment)</Text>
+      <Text style={styles.title}>{name}</Text>
       <View style={styles.row}>
         <View style={styles.column}>
-          <Text style={styles.text}>10 rue de la merde, 12345 Testville</Text>
-          <Text style={styles.text}>Restaurant francais</Text>
+          <Text style={styles.text}>{address}</Text>
+          <Text style={styles.text}>{category}</Text>
         </View>
         <View style={styles.column}>
-          <Text style={isOpen ? styles.open : styles.closed}>Open</Text>
+        {isOpen && <Text style={styles.open}>Open</Text>}
+        {!isOpen && <Text style={styles.closed}>Closed</Text>}
         </View>
       </View>
     </SafeAreaView>
