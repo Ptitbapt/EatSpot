@@ -1,11 +1,11 @@
 import React from 'react';
 import { SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import RestaurantList from './screens/RestaurantList'; 
+import Details from './screens/Details'; 
 
 const App: React.FC = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-       <RestaurantList />
+       <Details />
       {/* <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         {}
       </KeyboardAvoidingView> */}
