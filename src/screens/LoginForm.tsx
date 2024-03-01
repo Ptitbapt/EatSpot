@@ -122,11 +122,10 @@ function LoginForm(): React.JSX.Element {
         <View style={styles.header}>
           <Text style={styles.title}>Inscription</Text>
           <Image
-            source={{
-              uri: 'https://ih1.redbubble.net/image.2711124043.8255/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.jpg',
-            }}
-            style={styles.profileImage}
-          />
+          source={require('../icons/ic_launcher_foreground.png')}
+          style={styles.profileImage}
+        />
+
         </View>
         <TextInput
           placeholder="Prénom"
@@ -196,11 +195,12 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 150,
     height: 150,
-    borderRadius: 75,
+    borderRadius: 100,
     marginBottom: 30,
     alignSelf: 'center',
-    resizeMode: 'contain',
-  },
+    resizeMode: 'cover',
+},
+
   input: {
     width: '90%',
     height: 50,
