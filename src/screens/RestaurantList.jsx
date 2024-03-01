@@ -1,11 +1,11 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 //import MapView, { Marker } from 'react-native-maps';
 //import MapComponent from './MapComponent';
 
-import { PermissionsAndroid, Platform } from 'react-native';
+import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import styles from './../styles/RestaurantListStyle'
 
@@ -16,9 +16,9 @@ const saveDataJson = async (jsonname, data) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
-const getDataJson = async (jsonname) => {
+const getDataJson = async jsonname => {
   try {
     const jsonValue = await AsyncStorage.getItem(jsonname);
     return jsonValue != null ? JSON.parse(jsonValue) : null;
@@ -29,7 +29,9 @@ const getDataJson = async (jsonname) => {
 
 
 const RestaurantList = () => {
-  
+  const route = useRoute();
+  const userName = route.params?.userName || 'Utilisateur anonyme';
+
     const navigation = useNavigation();
 
     const [restaurants, setRestaurants] = useState([]);
@@ -66,32 +68,36 @@ const RestaurantList = () => {
             );
           }
         }
-      } catch (err) {
+      }
+      catch (err) {
         console.warn(err);
       }
     };
 
     useEffect(() => {
       requestLocationPermission();
+      getDataJson('favorites').then(data => {
+        setArrayFavorites(data);
+        console.log('favorite', data);
+      });
     }, []);
 
     // use user's location and ask for permission
 
-    const fetchRestaurants = async () => {
-      const API_KEY = 'fsq3zYYs8PG4sj2b6qC+h+63+11H8KZkdNn94kI3Mrc+9i8=';
-      const API_URL = 'https://api.foursquare.com/v3/places/search';
+
+  const fetchRestaurants = async () => {
+    const API_KEY = 'fsq3zYYs8PG4sj2b6qC+h+63+11H8KZkdNn94kI3Mrc+9i8=';
+    const API_URL = 'https://api.foursquare.com/v3/places/search';
 
       try {
         const coords = userLocation.latitude + ',' + userLocation.longitude
         const searchParams = new URLSearchParams({
           query: searchQuery, 
           ll: userLocation ? coords: '48.8566,2.3522',
-          //open_now: 'true',
           sort: 'DISTANCE',
-          limit: '5',
+          limit: '10',
           categories: "13000",
         });
-        console.log("TEST1");
         const results = await fetch(
           `${API_URL}?${searchParams}`,
           {
@@ -114,15 +120,16 @@ const RestaurantList = () => {
                 headers: {
                   Accept: 'application/json',
                   Authorization: API_KEY,
-                }
-              }
+                },
+              },
             );
-            
-            const photosData = await photosResponse.json()
-            const photoURLs= await photosData.map(item => item.prefix + 'original' + item.suffix);
-            const firstPhotoURL = await photoURLs[0];
 
-            console.log("TEST3", result.fsq_id, result.name);
+            const photosData = await photosResponse.json();
+            const photoURLs = photosData.map(
+              item => item.prefix + 'original' + item.suffix,
+            );
+            const firstPhotoURL = photoURLs[0];
+
             return {
               id: result.fsq_id,
               name: result.name,
@@ -138,19 +145,19 @@ const RestaurantList = () => {
                 status: result.closed_bucket,
               }
             };
+          }),
+        );
 
-          }));
-
-          setRestaurants(extractedRestaurants);
-        } else {
-          console.error('Response format is incorrect:', data);
-        }
-      } catch (err) {
-        console.error("TEST",err);
+        setRestaurants(extractedRestaurants);
+      } else {
+        console.error('Response format is incorrect:', data);
       }
-    };
+    } catch (err) {
+      console.error("TEST",err);
+    }
+  };
 
-  const renderRestaurantItem = ({ item }) => (
+  const renderRestaurantItem = ({item}) => (
     <View style={styles.restaurantItem}>
       <Text style={styles.restaurantName}>
         {item.name}
@@ -165,26 +172,23 @@ const RestaurantList = () => {
     </View>
   );
 
-
-
   return (
     <View style={styles.container}>
+      <Text style={styles.userName}>Welcome {userName}</Text>
       <TextInput
         style={styles.searchInput}
         placeholder="Search for restaurants..."
-        onChangeText={(text) => setSearchQuery(text)}
+        onChangeText={text => setSearchQuery(text)}
         onEndEditing={fetchRestaurants}
       />
       <FlatList
         data={restaurants}
-        keyExtractor={(restaurant) => restaurant.id}
+        keyExtractor={restaurant => restaurant.id}
         renderItem={renderRestaurantItem}
-        style={{flex:1}}
+        style={{flex: 1}}
       />
-    
     </View>
   );
 };
 
 export default RestaurantList;
-

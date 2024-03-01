@@ -64,6 +64,13 @@ const styles = StyleSheet.create({
     favoriteIcon: {
         marginLeft: 5,
     },
+    userName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginVertical: 10,
+        textAlign: 'center',
+        color: 'grey',
+    }
 });
 
 export default styles;

@@ -21,12 +21,12 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import styles from './../styles/LoginFormStyle';
 
+import { validatePassword } from '../utils/Validation';
 GoogleSignin.configure({
   webClientId: "517567946148-7u3f2tbc6v7k9kn4tlqem0h98skhiisr.apps.googleusercontent.com"
 });
 
 const LoginForm = () => {
-
   const navigation = useNavigation();
 
   const [prenom, setPrenom] = useState('');
@@ -35,39 +35,60 @@ const LoginForm = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-
-  // Charger les données depuis le localStorage au chargement du composant
-  useEffect(() => {
-    setPasswordError(password.length <= 3);
-  }, [password]);
-
-  const passwordMatchError = useMemo(
-    () => confirmPassword !== password && confirmPassword.length > 0,
-    [password, confirmPassword],
-  );
   const [isInProgress, setIsInProgress] = useState(false);
 
+  // Charger les données depuis le localStorage au chargement du composant
+  
+  useEffect(() => {
+    // La condition vérifie maintenant si le mot de passe correspond à l'expression régulière
+    setPasswordError(!validatePassword.test(password));
+    console.log('passwordError', passwordError);
+  }, [password]);
+  
+  // Utilisez useMemo pour vérifier si les mots de passe correspondent et s'ils sont conformes à l'expression régulière
+  const passwordMatchError = useMemo(
+    () => {
+      // La condition vérifie la correspondance des mots de passe et utilise également la regex pour la validation
+      const isPasswordValid = validatePassword.test(password);
+      return !isPasswordValid || (confirmPassword !== password && confirmPassword.length > 0);
+    },
+    [password, confirmPassword],
+  );
 
-async function onGoogleButtonPress() {
-  // Check if your device supports Google Play
-  try {
-  await GoogleSignin.hasPlayServices();
-  console.log("2")
-  // Get the users ID token
-  const { idToken } = await GoogleSignin.signIn();
-  console.log("3")
 
-  // Create a Google credential with the token
-  const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-  console.log('hihihiihi')
-
-  // Sign-in the user with the credential
-  return auth().signInWithCredential(googleCredential);
-  } catch (error) {
-   console.log(error);
+  async function onGoogleButtonPress() {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const {idToken} = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const userCredential = await auth().signInWithCredential(googleCredential);
+  
+      if (userCredential.user.displayName) {
+        // Si displayName existe, continuez avec le traitement original
+        console.log(`Nom complet: ${userCredential.user.displayName}`);
+  
+        // Séparer le displayName en prénom et nom, si possible
+        const fullName = userCredential.user.displayName.split(' ');
+        const prenom = fullName[0]; // Prendre le premier élément comme prénom
+        const nom = fullName.length > 1 ? fullName.slice(1).join(' ') : ''; // Prendre le reste comme nom
+  
+        // Afficher le prénom et le nom dans le console log
+        console.log(`Prénom: ${prenom}, Nom: ${nom}`);
+      } else {
+        // Si displayName n'existe pas, gérez ce cas
+        console.log("L'utilisateur n'a pas de nom d'affichage disponible.");
+        // Vous pouvez choisir de définir des valeurs par défaut ou de gérer ce cas d'une autre manière
+      }
+  
+      navigation.navigate('RestaurantList', {
+        userName: userCredential.user.displayName ? userCredential.user.displayName : "Utilisateur anonyme",
+      });
+    } catch (error) {
+      console.error('Sign in with Google failed:', error);
+    }
   }
-
-}
+  
+  
 
   const handlePress = useCallback(() => {
     if (
@@ -77,14 +98,14 @@ async function onGoogleButtonPress() {
       nom === ''
     ) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
-    } else if (passwordError || passwordMatchError) {
+    } else if (passwordError || passwordMatchError) { //passwordError et passwordMatchError sont tout le temps true
       Alert.alert('Erreur', 'Veuillez corriger les erreurs avant de soumettre');
     } else {
       Alert.alert(
         'Bonjour',
         `Bonjour ${prenom} ${nom}, votre mot de passe est ${password}`,
       );
-      navigation.navigate("RestaurantList");
+      navigation.navigate('RestaurantList');
     }
   }, [
     prenom,
