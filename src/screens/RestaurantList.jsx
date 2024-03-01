@@ -1,5 +1,11 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
 import React, {useState, useEffect} from 'react';
+import auth from '@react-native-firebase/auth';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import {
   View,
   Text,
@@ -44,6 +50,25 @@ const RestaurantList = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [userLocation, setUserLocation] = useState({});
   const [ArrayFavorites, setArrayFavorites] = useState([]);
+  const signOut = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      navigation.navigate('LoginForm'); // Assurez-vous d'avoir un écran de connexion pour naviguer après la déconnexion
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
+  useEffect(() => {
+    const checkIfLoggedIn = async () => {
+      const isSignedIn = await GoogleSignin.isSignedIn();
+      if (!isSignedIn) {
+        navigation.navigate('LoginForm'); // Assurez-vous que le nom de l'écran est correct
+      }
+    };
+
+    checkIfLoggedIn();
+  }, [navigation]);
   const requestLocationPermission = async () => {
     try {
       if (Platform.OS === 'android') {
@@ -204,6 +229,9 @@ const RestaurantList = () => {
         renderItem={renderRestaurantItem}
         style={{flex: 1}}
       />
+      <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
+        <Text style={styles.signOutButtonText}>Déconnexion</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -271,6 +299,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
     textAlign: 'center',
+  },
+  signOutButton: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    padding: 10,
+    backgroundColor: 'red',
+    borderRadius: 20,
+    elevation: 2,
+  },
+  signOutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
