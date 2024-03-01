@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 //import MapView, { Marker } from 'react-native-maps';
 //import MapComponent from './MapComponent';
 
 import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-
+import styles from './../styles/RestaurantListStyle'
 
 const saveDataJson = async (jsonname, data) => {
   try {
@@ -26,15 +27,14 @@ const getDataJson = async (jsonname) => {
   }
 };
 
+
 const RestaurantList = () => {
   
     const navigation = useNavigation();
 
     const [restaurants, setRestaurants] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedType, setSelectedType] = useState('all');
     const [userLocation, setUserLocation] = useState({ });
-    const [ArrayFavorites, setArrayFavorites] = useState([]);
     const requestLocationPermission = async () => {
       try {
         if (Platform.OS === 'android') {
@@ -71,6 +71,10 @@ const RestaurantList = () => {
       }
     };
 
+    useEffect(() => {
+      requestLocationPermission();
+    }, []);
+
     // use user's location and ask for permission
 
     const fetchRestaurants = async () => {
@@ -78,15 +82,16 @@ const RestaurantList = () => {
       const API_URL = 'https://api.foursquare.com/v3/places/search';
 
       try {
+        const coords = userLocation.latitude + ',' + userLocation.longitude
         const searchParams = new URLSearchParams({
           query: searchQuery, 
-          ll: userLocation ? `${userLocation.latitude},${userLocation.longitude}` : '48.8566,2.3522',
+          ll: userLocation ? coords: '48.8566,2.3522',
           //open_now: 'true',
           sort: 'DISTANCE',
           limit: '5',
-          categoryId: selectedType === 'all' ? '' : selectedType ,
+          categories: "13000",
         });
-
+        console.log("TEST1");
         const results = await fetch(
           `${API_URL}?${searchParams}`,
           {
@@ -101,6 +106,7 @@ const RestaurantList = () => {
         const data = await results.json();
         if (data && data.results) {
           const extractedRestaurants = await Promise.all(data.results.map(async (result) => {
+            console.log("TEST2");
             const photosResponse = await fetch(
               `https://api.foursquare.com/v3/places/${result.fsq_id}/photos`,
               {
@@ -111,23 +117,28 @@ const RestaurantList = () => {
                 }
               }
             );
-
-            const photosData = await photosResponse.json();
-            const photoURLs = photosData.map(item => item.prefix + 'original' + item.suffix);
-            const firstPhotoURL = photoURLs[0];
             
+            const photosData = await photosResponse.json()
+            const photoURLs= await photosData.map(item => item.prefix + 'original' + item.suffix);
+            const firstPhotoURL = await photoURLs[0];
+
+            console.log("TEST3", result.fsq_id, result.name);
             return {
               id: result.fsq_id,
               name: result.name,
-              address: result.location.formatted_address,
               distance: result.distance,
-              categories: result.categories,
               status: result.closed_bucket,
               city: result.location.locality,
-              country: result.location.country,
-              region: result.location.region,
               url: firstPhotoURL,
+              ItemObject:{
+                id: result.fsq_id,
+                name: result.name,
+                address: result.location.formatted_address,
+                url: firstPhotoURL,
+                status: result.closed_bucket,
+              }
             };
+
           }));
 
           setRestaurants(extractedRestaurants);
@@ -135,29 +146,21 @@ const RestaurantList = () => {
           console.error('Response format is incorrect:', data);
         }
       } catch (err) {
-        console.error(err);
+        console.error("TEST",err);
       }
-    }; 
-  useEffect(() => {
-    requestLocationPermission()
-    getDataJson('favorites').then((data) => {
-      setArrayFavorites(data);
-      console.log("favorite", data);
-    }); 
-  }, []);
+    };
 
   const renderRestaurantItem = ({ item }) => (
     <View style={styles.restaurantItem}>
       <Text style={styles.restaurantName}>
         {item.name}
-        {item.isFavorite && <MaterialIcons name="favorite" size={24} color="red" style={styles.favoriteIcon} />}
       </Text>
       <Text style={styles.restaurantAddress}>{item.city}</Text>
       <Text style={styles.restaurantDistance}>{item.distance/1000} kms away</Text>
-      <Image source={{ uri: item.url }} style={styles.image} />
+      <Image source={item.url ? { uri: item.url } : require('./../icons/404.webp')} style={item.url ? styles.image : styles.image404} />
       {/* Bouton de favoris */}
-      <TouchableOpacity onPress={() => navigation.navigate('Details', {details: item})}>
-        <Text style={styles.favoriteButton}>Add to Favorites</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Details', {details: JSON.stringify(item.ItemObject)})}>
+        <Text style={styles.favoriteButton}>See details</Text>
       </TouchableOpacity>
     </View>
   );
@@ -182,69 +185,6 @@ const RestaurantList = () => {
     </View>
   );
 };
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 50,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  restaurantItem: {
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  restaurantName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  restaurantAddress: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  restaurantDistance: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  favoriteButton: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  favoriteIcon: {
-    marginLeft: 5,
-  },
-
-  
-});
 
 export default RestaurantList;
 

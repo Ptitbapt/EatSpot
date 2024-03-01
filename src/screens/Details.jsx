@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import styles from './../styles/DetailsStyle'
+import styles from '../styles/DetailsStyle'
 import {SafeAreaView, View, Text, Image, TouchableOpacity, ScrollView, FlatList, Linking, Platform, TouchableHighlight, Share, ImageBackground} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const saveDataJson = async (jsonname: string, data: any) => {
+const saveDataJson = async (jsonname, data) => {
   try {
     const jsonValue = JSON.stringify(data);
     await AsyncStorage.setItem(jsonname, jsonValue);
@@ -12,7 +12,7 @@ const saveDataJson = async (jsonname: string, data: any) => {
   }
 }
 
-const getDataJson = async (jsonname: string) => {
+const getDataJson = async (jsonname) => {
   try {
     const jsonValue = await AsyncStorage.getItem(jsonname);
     return jsonValue != null ? JSON.parse(jsonValue) : null;
@@ -29,17 +29,29 @@ const GetTime = () => {
   return hour.toString() +"h"+ minute.toString() +"m"+ second.toString()+"s";
 }
 
-const Details = (props: any) => {
-  const {navigation} = props;
-
-  const [details, setDetails] = useState({id:GetTime(), name:"string", address:"string", status:true, favorite:false, categories:[]});
-  const [listFavorites, setListFavorites] = useState<any[]>([]);
+const Details = (props) => {
+  const [details, setDetails] = useState({id:GetTime(), name:"", address:"", url:"", status:true, favorite:false});
+  const [listFavorites, setListFavorites] = useState([]);
   
+  const isFavorite= (param) => {
+    const id = param.id;
+    if (listFavorites){
+      const favorites = listFavorites.some(item => item.id === id);
+      return favorites? true : false;
+    }
+    else{
+      return false;
+    }
+    
+  }
+
   useEffect(() => {
     const fetchData = async () => {
-      // const data = await getDataJson('details');
-      const data = {id:GetTime(), name:"string", address:"string", status:true, favorite:false, categories:[]};
-      setDetails(data);
+      const data = JSON.parse(props.route.params.details);
+      console.log("data JSONNED", data);
+      // const data = {id:GetTime(), name:"string", image:url, address:"string", status:true, favorite:false, categories:[]};
+      const formattedDetails = { ...data, favorite:isFavorite(data) };
+      setDetails(formattedDetails);
       const favorites = await getDataJson('favorites');
       setListFavorites(favorites);
     };
@@ -52,15 +64,22 @@ const Details = (props: any) => {
     setDetails(updatedDetails);
 
     if (updatedDetails.favorite) {
-      if (!listFavorites.some(item => item.id === updatedDetails.id)) {
-        const updatedFavorites = [...listFavorites, updatedDetails];
-        setListFavorites(updatedFavorites);
-        saveDataJson('favorites', updatedFavorites);
+      if (listFavorites){
+        if (!listFavorites.some(item => item.id === updatedDetails.id)) {
+          const updatedFavorites = [...listFavorites, updatedDetails];
+          setListFavorites(updatedFavorites);
+          saveDataJson('favorites', updatedFavorites);
+          console.log("added to favorites");
+        }
       }
+      setListFavorites([updatedDetails]);
+      saveDataJson('favorites', [updatedDetails]);
+      console.log("create favorites list");
     } else {
       const updatedFavorites = listFavorites.filter(item => item.id !== updatedDetails.id);
       setListFavorites(updatedFavorites);
       saveDataJson('favorites', updatedFavorites);
+      console.log("removed from favorites");
     }
 
     saveDataJson('details', updatedDetails);
@@ -93,14 +112,14 @@ const Details = (props: any) => {
       } else if (result.action === Share.dismissedAction) {
         // dismissed
       }
-    } catch (error: any) {
+    } catch (error) {
       console.log(error.message);
     }
   }, []);
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ImageBackground style={styles.backImage} source={require('./../icons/Genshin.png')}>
+      <ImageBackground style={styles.backImage} source={details.url ? { uri: details.url } : require('./../icons/404.webp')}>
         <View style={styles.rowRight}>
           <TouchableHighlight onPress={sendWhatsApp} style={styles.share}>
             <Image source={require('./../icons/share.png')} style={styles.shareImage} />
@@ -114,7 +133,6 @@ const Details = (props: any) => {
       <View style={styles.row}>
         <View style={styles.column}>
           <Text style={styles.text}>{details.address}</Text>
-          <Text style={styles.text}>{details.categories}</Text>
         </View>
         <View style={styles.column}>
         {details.status && <Text style={styles.open}>Open</Text>}
