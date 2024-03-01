@@ -9,9 +9,9 @@ import Geolocation from 'react-native-geolocation-service';
 
 
 
-const RestaurantList = props => {
+const RestaurantList = () => {
   
-    const {navigation} = useNavigation();
+    const navigation = useNavigation();
 
     const [restaurants, setRestaurants] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');

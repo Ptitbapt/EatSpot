@@ -18,11 +18,15 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 GoogleSignin.configure({
   webClientId: "517567946148-7u3f2tbc6v7k9kn4tlqem0h98skhiisr.apps.googleusercontent.com"
 });
 
 function App(): React.JSX.Element {
+
+  const navigation = useNavigation();
+
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [password, setPassword] = useState('');
@@ -78,6 +82,7 @@ async function onGoogleButtonPress() {
         'Bonjour',
         `Bonjour ${prenom} ${nom}, votre mot de passe est ${password}`,
       );
+      navigation.navigate("RestaurantList");
     }
   }, [
     prenom,

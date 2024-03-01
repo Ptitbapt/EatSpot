@@ -101,9 +101,6 @@ const Details = (props: any) => {
   return (
     <SafeAreaView style={styles.screen}>
       <ImageBackground style={styles.backImage} source={require('./../icons/Genshin.png')}>
-        <TouchableOpacity onPress={() => {navigation.goBack()}} style={styles.button}>
-          <Text style={styles.textButton}>Go back</Text>
-        </TouchableOpacity>
         <View style={styles.rowRight}>
           <TouchableHighlight onPress={sendWhatsApp} style={styles.share}>
             <Image source={require('./../icons/share.png')} style={styles.shareImage} />

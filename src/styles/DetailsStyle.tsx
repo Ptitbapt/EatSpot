@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
     backImage: {
       height: 300,
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
       marginBottom: 20,
     },
     button: {
