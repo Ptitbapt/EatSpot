@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 //import MapView, { Marker } from 'react-native-maps';
@@ -8,8 +9,10 @@ import Geolocation from 'react-native-geolocation-service';
 
 
 
-const RestaurantList = () => {
+const RestaurantList = props => {
   
+    const {navigation} = useNavigation();
+
     const [restaurants, setRestaurants] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState('all');
@@ -134,7 +137,7 @@ const RestaurantList = () => {
       <Text style={styles.restaurantDistance}>{item.distance/1000} kms away</Text>
       <Image source={{ uri: item.url }} style={styles.image} />
       {/* Bouton de favoris */}
-      <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+      <TouchableOpacity onPress={() => navigation.navigate('Details', {details: item})}>
         <Text style={styles.favoriteButton}>{item.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</Text>
       </TouchableOpacity>
     </View>

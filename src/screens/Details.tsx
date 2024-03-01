@@ -29,7 +29,8 @@ const GetTime = () => {
   return hour.toString() +"h"+ minute.toString() +"m"+ second.toString()+"s";
 }
 
-const Details = () => {
+const Details = (props: any) => {
+  const {navigation} = props;
 
   const [details, setDetails] = useState({id:GetTime(), name:"string", address:"string", status:true, favorite:false, categories:[]});
   const [listFavorites, setListFavorites] = useState<any[]>([]);
@@ -100,7 +101,7 @@ const Details = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <ImageBackground style={styles.backImage} source={require('./../icons/Genshin.png')}>
-        <TouchableOpacity onPress={() => {console.log("hey")}} style={styles.button}>
+        <TouchableOpacity onPress={() => {navigation.goBack()}} style={styles.button}>
           <Text style={styles.textButton}>Go back</Text>
         </TouchableOpacity>
         <View style={styles.rowRight}>
