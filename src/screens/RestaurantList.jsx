@@ -1,25 +1,13 @@
-import {useNavigation, useRoute} from '@react-navigation/native';
-import React, {useState, useEffect} from 'react';
-import auth from '@react-native-firebase/auth';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Image,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 //import MapView, { Marker } from 'react-native-maps';
 //import MapComponent from './MapComponent';
 
 import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import styles from './../styles/RestaurantListStyle'
 
 const saveDataJson = async (jsonname, data) => {
   try {
@@ -39,107 +27,92 @@ const getDataJson = async jsonname => {
   }
 };
 
+
 const RestaurantList = () => {
   const route = useRoute();
   const userName = route.params?.userName || 'Utilisateur anonyme';
 
-  const navigation = useNavigation();
+    const navigation = useNavigation();
 
-  const [restaurants, setRestaurants] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [userLocation, setUserLocation] = useState({});
-  const [ArrayFavorites, setArrayFavorites] = useState([]);
-  const signOut = async () => {
-    try {
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-      navigation.navigate('LoginForm'); // Assurez-vous d'avoir un écran de connexion pour naviguer après la déconnexion
-    } catch (error) {
-      console.error('Error signing out: ', error);
-    }
-  };
-  useEffect(() => {
-    const checkIfLoggedIn = async () => {
-      const isSignedIn = await GoogleSignin.isSignedIn();
-      if (!isSignedIn) {
-        navigation.navigate('LoginForm'); // Assurez-vous que le nom de l'écran est correct
+    const [restaurants, setRestaurants] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [userLocation, setUserLocation] = useState({ });
+    const requestLocationPermission = async () => {
+      try {
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+          ]);
+          
+          if (
+            granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
+            granted['android.permission.ACCESS_COARSE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
+          ) {
+            console.log('Autorisation accordée');
+            // Vous pouvez maintenant récupérer la géolocalisation
+            Geolocation.getCurrentPosition(
+              (position) => {
+                setUserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude })
+              },
+              (error) => {
+                console.error('Erreur de géolocalisation:', error);
+              },
+              { enableHighAccuracy: true, timeout: 150000, maximumAge: 10000 }
+            );
+          } else {
+            Alert.alert(
+              'Permission refusée',
+              'Cette application a besoin d\'accéder à votre localisation pour fonctionner.',
+              [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+            );
+          }
+        }
+      }
+      catch (err) {
+        console.warn(err);
       }
     };
 
-    checkIfLoggedIn();
-  }, [navigation]);
-  const requestLocationPermission = async () => {
-    try {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-        ]);
+    useEffect(() => {
+      requestLocationPermission();
+      getDataJson('favorites').then(data => {
+        setArrayFavorites(data);
+        console.log('favorite', data);
+      });
+    }, []);
 
-        if (
-          granted['android.permission.ACCESS_FINE_LOCATION'] ===
-            PermissionsAndroid.RESULTS.GRANTED &&
-          granted['android.permission.ACCESS_COARSE_LOCATION'] ===
-            PermissionsAndroid.RESULTS.GRANTED
-        ) {
-          console.log('Autorisation accordée');
-          // Vous pouvez maintenant récupérer la géolocalisation
-          Geolocation.getCurrentPosition(
-            position => {
-              setUserLocation({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              });
-            },
-            error => {
-              console.error('Erreur de géolocalisation:', error);
-            },
-            {enableHighAccuracy: true, timeout: 150000, maximumAge: 10000},
-          );
-        } else {
-          Alert.alert(
-            'Permission refusée',
-            "Cette application a besoin d'accéder à votre localisation pour fonctionner.",
-            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          );
-        }
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+    // use user's location and ask for permission
 
-  // use user's location and ask for permission
 
   const fetchRestaurants = async () => {
     const API_KEY = 'fsq3zYYs8PG4sj2b6qC+h+63+11H8KZkdNn94kI3Mrc+9i8=';
     const API_URL = 'https://api.foursquare.com/v3/places/search';
 
-    try {
-      const searchParams = new URLSearchParams({
-        query: searchQuery,
-        ll: userLocation
-          ? `${userLocation.latitude},${userLocation.longitude}`
-          : '48.8566,2.3522',
-        //open_now: 'true',
-        sort: 'DISTANCE',
-        limit: '5',
-        categoryId: selectedType === 'all' ? '' : selectedType,
-      });
+      try {
+        const coords = userLocation.latitude + ',' + userLocation.longitude
+        const searchParams = new URLSearchParams({
+          query: searchQuery, 
+          ll: userLocation ? coords: '48.8566,2.3522',
+          sort: 'DISTANCE',
+          limit: '10',
+          categories: "13000",
+        });
+        const results = await fetch(
+          `${API_URL}?${searchParams}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              Authorization: API_KEY,
+            }
+          }
+        );
 
-      const results = await fetch(`${API_URL}?${searchParams}`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          Authorization: API_KEY,
-        },
-      });
-
-      const data = await results.json();
-      if (data && data.results) {
-        const extractedRestaurants = await Promise.all(
-          data.results.map(async result => {
+        const data = await results.json();
+        if (data && data.results) {
+          const extractedRestaurants = await Promise.all(data.results.map(async (result) => {
+            console.log("TEST2");
             const photosResponse = await fetch(
               `https://api.foursquare.com/v3/places/${result.fsq_id}/photos`,
               {
@@ -160,14 +133,17 @@ const RestaurantList = () => {
             return {
               id: result.fsq_id,
               name: result.name,
-              address: result.location.formatted_address,
               distance: result.distance,
-              categories: result.categories,
               status: result.closed_bucket,
               city: result.location.locality,
-              country: result.location.country,
-              region: result.location.region,
               url: firstPhotoURL,
+              ItemObject:{
+                id: result.fsq_id,
+                name: result.name,
+                address: result.location.formatted_address,
+                url: firstPhotoURL,
+                status: result.closed_bucket,
+              }
             };
           }),
         );
@@ -177,46 +153,28 @@ const RestaurantList = () => {
         console.error('Response format is incorrect:', data);
       }
     } catch (err) {
-      console.error(err);
+      console.error("TEST",err);
     }
   };
-  useEffect(() => {
-    requestLocationPermission();
-    getDataJson('favorites').then(data => {
-      setArrayFavorites(data);
-      console.log('favorite', data);
-    });
-  }, []);
 
   const renderRestaurantItem = ({item}) => (
     <View style={styles.restaurantItem}>
       <Text style={styles.restaurantName}>
         {item.name}
-        {item.isFavorite && (
-          <MaterialIcons
-            name="favorite"
-            size={24}
-            color="red"
-            style={styles.favoriteIcon}
-          />
-        )}
       </Text>
       <Text style={styles.restaurantAddress}>{item.city}</Text>
-      <Text style={styles.restaurantDistance}>
-        {item.distance / 1000} kms away
-      </Text>
-      <Image source={{uri: item.url}} style={styles.image} />
+      <Text style={styles.restaurantDistance}>{item.distance/1000} kms away</Text>
+      <Image source={item.url ? { uri: item.url } : require('./../icons/404.webp')} style={item.url ? styles.image : styles.image404} />
       {/* Bouton de favoris */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Details', {details: item})}>
-        <Text style={styles.favoriteButton}>Add to Favorites</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Details', {details: JSON.stringify(item.ItemObject)})}>
+        <Text style={styles.favoriteButton}>See details</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.userName}>Bonjour {userName}</Text>
+      <Text style={styles.userName}>Welcome {userName}</Text>
       <TextInput
         style={styles.searchInput}
         placeholder="Search for restaurants..."
@@ -229,90 +187,8 @@ const RestaurantList = () => {
         renderItem={renderRestaurantItem}
         style={{flex: 1}}
       />
-      <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
-        <Text style={styles.signOutButtonText}>Déconnexion</Text>
-      </TouchableOpacity>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 50,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  restaurantItem: {
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
-    padding: 10,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  restaurantName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  restaurantAddress: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  restaurantDistance: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  favoriteButton: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  favoriteIcon: {
-    marginLeft: 5,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    textAlign: 'center',
-  },
-  signOutButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 10,
-    padding: 10,
-    backgroundColor: 'red',
-    borderRadius: 20,
-    elevation: 2,
-  },
-  signOutButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 
 export default RestaurantList;

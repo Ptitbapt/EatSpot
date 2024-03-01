@@ -19,13 +19,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import styles from './../styles/LoginFormStyle';
+
 import { validatePassword } from '../utils/Validation';
 GoogleSignin.configure({
   webClientId: "517567946148-7u3f2tbc6v7k9kn4tlqem0h98skhiisr.apps.googleusercontent.com"
 });
 
-function LoginForm(): React.JSX.Element {
-
+const LoginForm = () => {
   const navigation = useNavigation();
 
   const [prenom, setPrenom] = useState('');
@@ -41,6 +42,7 @@ function LoginForm(): React.JSX.Element {
   useEffect(() => {
     // La condition vérifie maintenant si le mot de passe correspond à l'expression régulière
     setPasswordError(!validatePassword.test(password));
+    console.log('passwordError', passwordError);
   }, [password]);
   
   // Utilisez useMemo pour vérifier si les mots de passe correspondent et s'ils sont conformes à l'expression régulière
@@ -96,14 +98,14 @@ function LoginForm(): React.JSX.Element {
       nom === ''
     ) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
-    } else if (passwordError || passwordMatchError) {
+    } else if (passwordError || passwordMatchError) { //passwordError et passwordMatchError sont tout le temps true
       Alert.alert('Erreur', 'Veuillez corriger les erreurs avant de soumettre');
     } else {
       Alert.alert(
         'Bonjour',
         `Bonjour ${prenom} ${nom}, votre mot de passe est ${password}`,
       );
-      navigation.navigate("RestaurantList");
+      navigation.navigate('RestaurantList');
     }
   }, [
     prenom,
@@ -122,10 +124,11 @@ function LoginForm(): React.JSX.Element {
         <View style={styles.header}>
           <Text style={styles.title}>Inscription</Text>
           <Image
-          source={require('../icons/ic_launcher_foreground.png')}
-          style={styles.profileImage}
-        />
-
+            source={{
+              uri: 'https://ih1.redbubble.net/image.2711124043.8255/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.jpg',
+            }}
+            style={styles.profileImage}
+          />
         </View>
         <TextInput
           placeholder="Prénom"
@@ -172,69 +175,5 @@ function LoginForm(): React.JSX.Element {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollView: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 100,
-    marginBottom: 30,
-    alignSelf: 'center',
-    resizeMode: 'cover',
-},
-
-  input: {
-    width: '90%',
-    height: 50,
-    margin: 12,
-    padding: 10,
-    borderWidth: 2,
-    borderRadius: 10,
-    backgroundColor: 'lightgray',
-    borderColor: 'gray',
-    alignSelf: 'center',
-  },
-  buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-  button: {
-    width: '50%',
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'gray',
-  },
-  buttonText: {
-    color: 'gray',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  errorInput: {
-    borderColor: 'red',
-  },
-});
 
 export default LoginForm;
