@@ -8,6 +8,23 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 
 
+const saveDataJson = async (jsonname, data) => {
+  try {
+    const jsonValue = JSON.stringify(data);
+    await AsyncStorage.setItem(jsonname, jsonValue);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+const getDataJson = async (jsonname) => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(jsonname);
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const RestaurantList = () => {
   
@@ -17,7 +34,7 @@ const RestaurantList = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState('all');
     const [userLocation, setUserLocation] = useState({ });
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [ArrayFavorites, setArrayFavorites] = useState([]);
     const requestLocationPermission = async () => {
       try {
         if (Platform.OS === 'android') {
@@ -66,7 +83,7 @@ const RestaurantList = () => {
           ll: userLocation ? `${userLocation.latitude},${userLocation.longitude}` : '48.8566,2.3522',
           //open_now: 'true',
           sort: 'DISTANCE',
-          limit: '25',
+          limit: '5',
           categoryId: selectedType === 'all' ? '' : selectedType ,
         });
 
@@ -98,8 +115,7 @@ const RestaurantList = () => {
             const photosData = await photosResponse.json();
             const photoURLs = photosData.map(item => item.prefix + 'original' + item.suffix);
             const firstPhotoURL = photoURLs[0];
-            const remainingPhotoURLs = photoURLs.slice(1);
-            console.log(result);
+            
             return {
               id: result.fsq_id,
               name: result.name,
@@ -111,7 +127,6 @@ const RestaurantList = () => {
               country: result.location.country,
               region: result.location.region,
               url: firstPhotoURL,
-              // urls: remainingPhotoURLs
             };
           }));
 
@@ -125,7 +140,11 @@ const RestaurantList = () => {
     }; 
   useEffect(() => {
     requestLocationPermission()
-}, []); 
+    getDataJson('favorites').then((data) => {
+      setArrayFavorites(data);
+      console.log("favorite", data);
+    }); 
+  }, []);
 
   const renderRestaurantItem = ({ item }) => (
     <View style={styles.restaurantItem}>
@@ -138,7 +157,7 @@ const RestaurantList = () => {
       <Image source={{ uri: item.url }} style={styles.image} />
       {/* Bouton de favoris */}
       <TouchableOpacity onPress={() => navigation.navigate('Details', {details: item})}>
-        <Text style={styles.favoriteButton}>{item.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</Text>
+        <Text style={styles.favoriteButton}>Add to Favorites</Text>
       </TouchableOpacity>
     </View>
   );
