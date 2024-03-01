@@ -70,7 +70,20 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         textAlign: 'center',
         color: 'grey',
-    }
+    },
+    signOutButton: {
+        position: 'absolute',
+        right: 10,           
+        bottom: 10,           
+        padding: 10,
+        backgroundColor: 'red',
+        borderRadius: 20,
+        elevation: 2, 
+      },
+      signOutButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+      },
 });
 
 export default styles;
